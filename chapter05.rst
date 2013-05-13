@@ -786,10 +786,10 @@ apart::
 
     [<Publisher: Publisher object>, <Publisher: Publisher object>]
 
-We can fix this easily by adding a method called ``__unicode__()`` to our
-``Publisher`` class. A ``__unicode__()`` method tells Python how to display the
-"unicode" representation of an object. You can see this in action by adding a
-``__unicode__()`` method to the three models:
+We can fix this easily by adding a method called ``__str__()`` to our
+``Publisher`` class. A ``__str__()`` method tells Python how to display the
+string representation (UTF-8 encoding) of an object. You can see this in 
+action by adding a ``__str__()`` method to the three models:
 
 .. parsed-literal::
 
@@ -803,7 +803,7 @@ We can fix this easily by adding a method called ``__unicode__()`` to our
         country = models.CharField(max_length=50)
         website = models.URLField()
 
-        **def __unicode__(self):**
+        **def __str__(self):**
             **return self.name**
 
     class Author(models.Model):
@@ -811,7 +811,7 @@ We can fix this easily by adding a method called ``__unicode__()`` to our
         last_name = models.CharField(max_length=40)
         email = models.EmailField()
 
-        **def __unicode__(self):**
+        **def __str__(self):**
             **return u'%s %s' % (self.first_name, self.last_name)**
 
     class Book(models.Model):
@@ -820,20 +820,27 @@ We can fix this easily by adding a method called ``__unicode__()`` to our
         publisher = models.ForeignKey(Publisher)
         publication_date = models.DateField()
 
-        **def __unicode__(self):**
+        **def __str__(self):**
             **return self.title**
 
-As you can see, a ``__unicode__()`` method can do whatever it needs to do in order
-to return a representation of an object. Here, the ``__unicode__()`` methods for
+As you can see, a ``__str__()`` method can do whatever it needs to do in order
+to return a representation of an object. Here, the ``__str__()`` methods for
 ``Publisher`` and ``Book`` simply return the object's name and title,
-respectively, but the ``__unicode__()`` for ``Author`` is slightly more complex --
+respectively, but the ``__str__()`` for ``Author`` is slightly more complex --
 it pieces together the ``first_name`` and ``last_name`` fields, separated by a
 space.
 
-The only requirement for ``__unicode__()`` is that it return a Unicode object.
-If ``__unicode__()`` doesn't return a Unicode object -- if it returns, say, an
+The only requirement for ``__str__()`` is that it return a String object.
+If ``__str__()`` doesn't return a String object -- if it returns, say, an
 integer -- then Python will raise a ``TypeError`` with a message like
 ``"coercing to Unicode: need string or buffer, int found"``.
+
+In Python 2, ``__str__()`` method returns the byte representation of the object,
+while ``__unicode__()`` method is used to return the unicode representation. 
+However, in Python 3, only ``__str__()`` method is used to give the String 
+representation of the object.
+For code porting issues, please check https://docs.djangoproject.com/en/dev/topics/python3/ 
+for details.
 
 .. admonition:: Unicode objects
 
@@ -870,7 +877,7 @@ integer -- then Python will raise a ``TypeError`` with a message like
     Unicode objects, and you owe it to yourself to learn more about the topic.
     A good place to start is http://www.joelonsoftware.com/articles/Unicode.html .
 
-For the ``__unicode__()`` changes to take effect, exit out of the Python shell
+For the ``__str__()`` changes to take effect, exit out of the Python shell
 and enter it again with ``python manage.py shell``. (This is the simplest way
 to make code changes take effect.) Now the list of ``Publisher`` objects is
 much easier to understand::
@@ -882,15 +889,15 @@ much easier to understand::
 
 .. SL Tested ok
 
-Make sure any model you define has a ``__unicode__()`` method -- not only for
+Make sure any model you define has a ``__str__()`` method -- not only for
 your own convenience when using the interactive interpreter, but also because
-Django uses the output of ``__unicode__()`` in several places when it needs to
+Django uses the output of ``__str__()`` in several places when it needs to
 display objects.
 
-Finally, note that ``__unicode__()`` is a good example of adding *behavior* to
+Finally, note that ``__str__()`` is a good example of adding *behavior* to
 models. A Django model describes more than the database table layout for an
 object; it also describes any functionality that object knows how to do.
-``__unicode__()`` is one example of such functionality -- a model knows how to
+``__str__()`` is one example of such functionality -- a model knows how to
 display itself.
 
 Inserting and Updating Data
